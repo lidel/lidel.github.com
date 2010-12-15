@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/">
+
+
+  <foaf:PersonalProfileDocument rdf:about="">
+    <foaf:maker rdf:resource="#me"/>
+    <foaf:primaryTopic rdf:resource="#me"/>
+  </foaf:PersonalProfileDocument>
+
+  <foaf:Person rdf:about="#me">
+    <foaf:name>Marcin Rataj</foaf:name>
+    <foaf:givenname>Marcin</foaf:givenname>
+    <foaf:family_name>Rataj</foaf:family_name>
+    <foaf:gender>Male</foaf:gender>
+    <foaf:nick>lidel</foaf:nick>
+    <foaf:homepage rdf:resource="http://lidel.org"/>
+    <!--
+    <foaf:openid rdf:resource="http://lidel.org/" />
+    foaf:schoolHomepage
+    -->
+    <foaf:workplaceHomepage rdf:resource="http://aergia.eu"/>
+    <foaf:mbox_sha1sum>9ab05402fc7243f0666b0b50b616d347db7d654f</foaf:mbox_sha1sum>
+    <foaf:mbox_sha1sum>4faf4e6fa8d7626f8a243f8781478cb2fef771bc</foaf:mbox_sha1sum>
+    <foaf:mbox_sha1sum>d756f405dc8e913a452139d2d6f522e5729db6f7</foaf:mbox_sha1sum>
+
+
+    <foaf:holdsAccount>
+      <foaf:OnlineAccount>
+        <foaf:accountServiceHomepage rdf:resource="http://google.com/profiles"/>
+        <foaf:accountProfilePage rdf:resource="http://www.google.com/profiles/marcin.rataj"/>
+        <foaf:accountName>marcin.rataj</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:holdsAccount>
+    <foaf:holdsAccount>
+      <foaf:OnlineAccount>
+        <foaf:accountServiceHomepage rdf:resource="http://github.com"/>
+        <foaf:accountProfilePage rdf:resource="http://github.com/lidel"/>
+        <foaf:accountName>lidel</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:holdsAccount>
+    <foaf:holdsAccount>
+      <foaf:OnlineAccount>
+        <foaf:accountServiceHomepage rdf:resource="http://delicious.com"/>
+        <foaf:accountProfilePage rdf:resource="http://delicious.com/lidel"/>
+        <foaf:accountName>lidel</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:holdsAccount>
+    <foaf:holdsAccount>
+      <foaf:OnlineAccount>
+        <foaf:accountServiceHomepage rdf:resource="http://picasaweb.google.com"/>
+        <foaf:accountProfilePage rdf:resource="http://picasaweb.google.com/marcin.rataj"/>
+        <foaf:accountName>marcin.rataj</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:holdsAccount>
+    <foaf:holdsAccount>
+      <foaf:OnlineAccount>
+        <foaf:accountServiceHomepage rdf:resource="http://www.goodreads.com"/>
+        <foaf:accountProfilePage rdf:resource="http://www.goodreads.com/lidel"/>
+        <foaf:accountName>lidel</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:holdsAccount>
+    <foaf:holdsAccount>
+      <foaf:OnlineAccount>
+        <foaf:accountServiceHomepage rdf:resource="http://www.last.fm"/>
+        <foaf:accountProfilePage rdf:resource="http://www.last.fm/user/lidel"/>
+        <foaf:accountName>lidel</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:holdsAccount>
+    <foaf:holdsAccount>
+      <foaf:OnlineAccount>
+        <foaf:accountServiceHomepage rdf:resource="http://musicbrainz.com"/>
+        <foaf:accountProfilePage rdf:resource="http://musicbrainz.org/show/user/?userid=451423"/>
+        <foaf:accountName>lidel</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:holdsAccount>
+
+  <foaf:account>
+    <foaf:OnlineAccount>
+      <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/OnlineChatAccount"/>
+      <foaf:accountServiceHomepage rdf:resource="http://www.freenode.net/"/>
+      <foaf:accountName>lidel</foaf:accountName>
+    </foaf:OnlineAccount>
+  </foaf:account>
+
+  </foaf:Person>
+
+</rdf:RDF>
+
