@@ -73,8 +73,22 @@
     <foaf:holdsAccount>
       <foaf:OnlineAccount>
         <foaf:accountServiceHomepage rdf:resource="http://musicbrainz.com"/>
-        <foaf:accountProfilePage rdf:resource="http://musicbrainz.org/show/user/?userid=451423"/>
+        <foaf:accountProfilePage rdf:resource="http://musicbrainz.org/user/liDEL"/>
         <foaf:accountName>lidel</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:holdsAccount>
+    <foaf:holdsAccount>
+      <foaf:OnlineAccount>
+        <foaf:accountServiceHomepage rdf:resource="http://flattr.com"/>
+        <foaf:accountProfilePage rdf:resource="http://flattr.com/profile/lidel"/>
+        <foaf:accountName>lidel</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:holdsAccount>
+    <foaf:holdsAccount>
+      <foaf:OnlineAccount>
+        <foaf:accountServiceHomepage rdf:resource="http://meta.wikimedia.org"/>
+        <foaf:accountProfilePage rdf:resource="http://meta.wikimedia.org/wiki/User:LiDEL"/>
+        <foaf:accountName>LiDEL</foaf:accountName>
       </foaf:OnlineAccount>
     </foaf:holdsAccount>
 
