@@ -7,4 +7,3 @@ a { color: #568; text-decoration:none; border-bottom: 2px solid #ccc; }
 a:hover { color: #333; border-bottom: 2px solid #000; }
 code { font-family: 'Droid Sans Mono', monospace; font-size: 0.9em; }
 footer { position: fixed; bottom: 0; right:0; margin:1em; font-size: 0.8em; }
-.FlattrButton {margin-top: 0.25em;}
