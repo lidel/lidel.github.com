@@ -1,12 +1,10 @@
-@import url(http://fonts.googleapis.com/css?family=Ubuntu&subset=latin&v2);
-@import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono&text=0123456789lidelACDEFOpng:x&v2);
-body { background-color: #fff; font-family: 'Ubuntu', arial, serif; margin:3em; text-shadow:1px 1px 1px #fff; background-image: -moz-linear-gradient(100% 50px 90deg, #fff, #e5e5e5); background-image: -webkit-gradient(linear, center top, center 50, from(#e5e5e5), to(#fff)); }
+@import url(http://fonts.googleapis.com/css?family=Play:400,700&subset=latin);
+body { background-color: #fff; font-family: 'Play', sans-serif; margin:3em; text-shadow:1px 1px 1px #fff; background-image: -moz-linear-gradient(100% 50px 90deg, #fff, #e5e5e5); background-image: -webkit-gradient(linear, center top, center 50, from(#e5e5e5), to(#fff)); }
 #logo { font-size: 4em; background: transparent url("avatar_100x100.png") no-repeat 0 0; height: 100px; padding-left:110px; line-height: 100px; }
 ul { list-style-type: none; margin: 0; padding: 0;}
 li { display: inline; margin-right: 8px; }
 h1,h2 { font-weight: normal; }
 h2 { text-shadow: 8px 8px 8px #ddd; }
-a { color: #568; text-decoration:none; border-bottom: 2px solid #ccc; }
+a { color: #568; text-decoration:none; border-bottom: 1px solid #ccc; }
 a:hover { color: #333; border-bottom: 2px solid #000; }
-code { font-family: 'Droid Sans Mono', monospace; font-size: 0.8em; }
 footer { text-align: right; margin:1em; font-size: 0.8em; }
