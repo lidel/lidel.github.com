@@ -26,9 +26,9 @@
 
     <foaf:holdsAccount>
       <foaf:OnlineAccount>
-        <foaf:accountServiceHomepage rdf:resource="http://google.com/profiles"/>
-        <foaf:accountProfilePage rdf:resource="http://www.google.com/profiles/marcin.rataj"/>
-        <foaf:accountName>marcin.rataj</foaf:accountName>
+        <foaf:accountServiceHomepage rdf:resource="http://plus.google.com"/>
+        <foaf:accountProfilePage rdf:resource="http://plus.google.com/u/0/118342891005560217587/about"/>
+        <foaf:accountName>Marcin Rataj</foaf:accountName>
       </foaf:OnlineAccount>
     </foaf:holdsAccount>
     <foaf:holdsAccount>
@@ -43,13 +43,6 @@
         <foaf:accountServiceHomepage rdf:resource="http://delicious.com"/>
         <foaf:accountProfilePage rdf:resource="http://delicious.com/lidel"/>
         <foaf:accountName>lidel</foaf:accountName>
-      </foaf:OnlineAccount>
-    </foaf:holdsAccount>
-    <foaf:holdsAccount>
-      <foaf:OnlineAccount>
-        <foaf:accountServiceHomepage rdf:resource="http://picasaweb.google.com"/>
-        <foaf:accountProfilePage rdf:resource="http://picasaweb.google.com/marcin.rataj"/>
-        <foaf:accountName>marcin.rataj</foaf:accountName>
       </foaf:OnlineAccount>
     </foaf:holdsAccount>
     <foaf:holdsAccount>
