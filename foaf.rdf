@@ -17,8 +17,8 @@
     <foaf:surname>Rataj</foaf:surname>
     <foaf:gender>Male</foaf:gender>
     <foaf:nick>lidel</foaf:nick>
-    <foaf:homepage rdf:resource="http://lidel.org"/>
-    <foaf:workplaceHomepage rdf:resource="http://aergia.eu"/>
+    <foaf:homepage rdf:resource="https://lidel.org"/>
+    <foaf:workplaceHomepage rdf:resource="https://aergia.eu"/>
     <foaf:mbox_sha1sum>9ab05402fc7243f0666b0b50b616d347db7d654f</foaf:mbox_sha1sum>
     <foaf:mbox_sha1sum>4faf4e6fa8d7626f8a243f8781478cb2fef771bc</foaf:mbox_sha1sum>
     <foaf:mbox_sha1sum>d756f405dc8e913a452139d2d6f522e5729db6f7</foaf:mbox_sha1sum>
@@ -26,22 +26,22 @@
 
     <foaf:holdsAccount>
       <foaf:OnlineAccount>
-        <foaf:accountServiceHomepage rdf:resource="http://plus.google.com"/>
-        <foaf:accountProfilePage rdf:resource="http://plus.google.com/u/0/118342891005560217587/about"/>
+        <foaf:accountServiceHomepage rdf:resource="https://plus.google.com"/>
+        <foaf:accountProfilePage rdf:resource="https://plus.google.com/u/0/118342891005560217587/about"/>
         <foaf:accountName>Marcin Rataj</foaf:accountName>
       </foaf:OnlineAccount>
     </foaf:holdsAccount>
     <foaf:holdsAccount>
       <foaf:OnlineAccount>
-        <foaf:accountServiceHomepage rdf:resource="http://github.com"/>
-        <foaf:accountProfilePage rdf:resource="http://github.com/lidel"/>
+        <foaf:accountServiceHomepage rdf:resource="https://github.com"/>
+        <foaf:accountProfilePage rdf:resource="https://github.com/lidel"/>
         <foaf:accountName>lidel</foaf:accountName>
       </foaf:OnlineAccount>
     </foaf:holdsAccount>
     <foaf:holdsAccount>
       <foaf:OnlineAccount>
-        <foaf:accountServiceHomepage rdf:resource="http://delicious.com"/>
-        <foaf:accountProfilePage rdf:resource="http://delicious.com/lidel"/>
+        <foaf:accountServiceHomepage rdf:resource="https://pinboard.in"/>
+        <foaf:accountProfilePage rdf:resource="https://pinboard.in/u:lidel"/>
         <foaf:accountName>lidel</foaf:accountName>
       </foaf:OnlineAccount>
     </foaf:holdsAccount>
