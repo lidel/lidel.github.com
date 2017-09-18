@@ -68,20 +68,6 @@
     </foaf:holdsAccount>
     <foaf:holdsAccount>
       <foaf:OnlineAccount>
-        <foaf:accountServiceHomepage rdf:resource="http://flattr.com"/>
-        <foaf:accountProfilePage rdf:resource="http://flattr.com/profile/lidel"/>
-        <foaf:accountName>lidel</foaf:accountName>
-      </foaf:OnlineAccount>
-    </foaf:holdsAccount>
-    <foaf:holdsAccount>
-      <foaf:OnlineAccount>
-        <foaf:accountServiceHomepage rdf:resource="http://www.kiva.org"/>
-        <foaf:accountProfilePage rdf:resource="http://www.kiva.org/lender/lidel"/>
-        <foaf:accountName>lidel</foaf:accountName>
-      </foaf:OnlineAccount>
-    </foaf:holdsAccount>
-    <foaf:holdsAccount>
-      <foaf:OnlineAccount>
         <foaf:accountServiceHomepage rdf:resource="http://meta.wikimedia.org"/>
         <foaf:accountProfilePage rdf:resource="http://meta.wikimedia.org/wiki/User:LiDEL"/>
         <foaf:accountName>LiDEL</foaf:accountName>
