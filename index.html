@@ -29,8 +29,11 @@
             --ctl-fg: #d3ccbc; --ctl-bg: #212126; --ctl-border: rgba(255,255,255,.16); --ctl-hover: #2c2c32; --ctl-shadow: rgba(0,0,0,.5);
         }
         body { color: var(--fg); background-color: var(--bg); font-family: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif; font-size: 1.1em; line-height: 1.6; margin: 0 auto; padding: 1.3125em 1em 0; width: 35em; max-width: 90%; text-align: left; hyphens: auto; box-sizing: border-box; min-height: 100vh; display: flex; flex-direction: column;}
-        #logo { font-size: 4em; background: transparent url(/avatar.svg) no-repeat 0 0; background-size: 128px 128px; height: 128px; padding-left: 140px; line-height: 128px; }
+        html { overflow-x: hidden; }
+        #page { display: flex; flex-direction: column; flex: 1; transform: rotate(-3deg); transform-origin: 50% 40%; }
+        #logo { font-size: 4em; background: transparent url(/avatar.svg) no-repeat 0 0; background-size: 128px 128px; height: 128px; padding-left: 140px; line-height: 128px; transform: rotate(6deg); transform-origin: 64px 50%; }
         p, ul { margin: 0.6em 0; }
+        #elsewhere-section { transform: rotate(6deg); transform-origin: 50% 50%; margin: 1.5em 0; }
         ul#elsewhere { list-style-type: none; padding: 0; }
         #elsewhere li { display: inline; margin-right: 0.5em; font-size: 0.8em; }
         h1 { font-size: 1.5em; font-weight: normal; font-style: italic; margin-top: 1.8em; margin-bottom: 0.2em; }
@@ -77,6 +80,8 @@
     </ul>
 </div>
 
+<div id="page">
+
 <p id="logo" aria-hidden="true">…?</p>
 
 <p>You've found <strong>lidel</strong>! (Marcin Rataj)</p>
@@ -91,6 +96,7 @@ PGP: <a href="/.well-known/openpgpkey/hu/pux6ahz7y3h18tcqxn4gzhq8qtgkjujx" type=
 <code>9971 97D7 8B2D 5ED7 43FC  B65D 222B 6784 D5A7 9E42</code>
 </p>
 
+<div id="elsewhere-section">
 <h1>Elsewhere</h1>
 
 <ul id="elsewhere" aria-label="profile links">
@@ -102,11 +108,14 @@ PGP: <a href="/.well-known/openpgpkey/hu/pux6ahz7y3h18tcqxn4gzhq8qtgkjujx" type=
     <li><a rel="me" href="https://musicbrainz.org/user/lidel" title="my MusicBrainz contributions">MusicBrainz</a></li>
     <li><a rel="me" href="https://meta.wikimedia.org/wiki/User:LiDEL" title="my Wikimedia contributions">Wikimedia</a></li>
 </ul>
+</div>
 
 <footer><p>All my public bits are under <a rel="license" href="http://creativecommons.org/publicdomain/zero/1.0/">CC0 Public Domain Dedication</a>, unless noted otherwise.
 <br>
 This site runs on <a href="https://github.com/lidel/lidel.github.com">recycled electrons</a>.
 </p></footer>
+
+</div>
 
 <script>
 (function () {
