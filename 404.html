@@ -5,21 +5,47 @@
     <meta charset="utf-8" />
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+        (function () {
+            try {
+                var mode = localStorage.getItem('theme') || 'auto';
+                var dark = mode === 'dark' || (mode === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+            } catch (e) {}
+        })();
+    </script>
     <style>
-        body { color:#333; background-color: #fff; font-family: system-ui, sans-serif; margin: 1.3125em auto 0 auto; padding: 0; width: 35em; max-width: 98%; text-align: left; hyphens: auto;}
-        p, ul { margin: 1.5em 0; }
-        h1 { font-size: 1.5em; font-weight: normal; }
-        p a { color: #333; text-decoration:none; border-bottom: 1px dotted #444; }
-        a:hover { color: #444; border-bottom: 2px solid #568; }
+        :root {
+            color-scheme: light;
+            --bg: #fffff8; --fg: #111; --link-border: #555; --link-hover: #333; --accent: #556688;
+        }
+        [data-theme="dark"] {
+            color-scheme: dark;
+            --bg: #18181a; --fg: #d3ccbc; --link-border: #79756b; --link-hover: #f1e9d7; --accent: #9bafc9;
+        }
+        html { overflow-x: hidden; }
+        body { color: var(--fg); background-color: var(--bg); font-family: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif; font-size: 1.1em; line-height: 1.6; margin: 0 auto; padding: 1.3125em 1em 0; width: 35em; max-width: 90%; text-align: left; hyphens: auto; box-sizing: border-box; min-height: 100vh; display: flex; flex-direction: column;}
+        #page { display: flex; flex-direction: column; flex: 1; transform: rotate(-3deg); transform-origin: 50% 40%; }
+        p { margin: 0.6em 0; }
+        h1 { font-size: 1.5em; font-weight: normal; font-style: italic; margin: 1.8em 0 1.6em; transform: rotate(6deg); transform-origin: 0 50%; }
+        h1 + p { margin-top: 0; }
+        #back { margin-top: 1.6em; transform: rotate(-6deg); transform-origin: 0 50%; }
+        a { color: var(--fg); text-decoration: none; border-bottom: 1px dotted var(--link-border); }
+        a:hover { color: var(--link-hover); border-bottom: 2px solid var(--accent); }
     </style>
 </head>
 
 <body>
-    <h1>Error 404: Page Not Found</h1>
 
-    <p>suddenly… the anode end of the tube!</p>
-    <p>go to the <a href="/">main page</a>.</p>
+<div id="page">
+
+<h1>Error 404: Page Not Found</h1>
+
+<p>suddenly… the anode end of the tube!</p>
+<p id="back">go to the <a href="/">main page</a>.</p>
+
+</div>
 
 </body>
 </html>
-
