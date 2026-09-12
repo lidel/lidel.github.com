@@ -21,17 +21,23 @@
         :root {
             color-scheme: light;
             --bg: #fffff8; --fg: #111; --link-border: #555; --link-hover: #333; --accent: #556688;
+            --stain-wash: #8c8676; --stain-ring: #232019;
             --ctl-fg: #333; --ctl-bg: #fffff8; --ctl-border: rgba(0,0,0,.18); --ctl-hover: #f0efe4; --ctl-shadow: rgba(0,0,0,.15);
             --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='5' viewBox='0 0 16 5'%3E%3Cpath d='M0 2.5 Q4 1 8 2.5 T16 2.5' fill='none' stroke='%23a15c2e' stroke-width='1.4'/%3E%3C/svg%3E");
         }
         [data-theme="dark"] {
             color-scheme: dark;
             --bg: #18181a; --fg: #d3ccbc; --link-border: #79756b; --link-hover: #f1e9d7; --accent: #9bafc9;
+            --stain-wash: #4d493e; --stain-ring: #8c8676;
             --ctl-fg: #d3ccbc; --ctl-bg: #212126; --ctl-border: rgba(255,255,255,.16); --ctl-hover: #2c2c32; --ctl-shadow: rgba(0,0,0,.5);
             --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='5' viewBox='0 0 16 5'%3E%3Cpath d='M0 2.5 Q4 1 8 2.5 T16 2.5' fill='none' stroke='%23c98a5a' stroke-width='1.4'/%3E%3C/svg%3E");
         }
         body { color: var(--fg); background-color: var(--bg); font-family: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif; font-size: 1.1em; line-height: 1.6; margin: 0 auto; padding: 1.3125em 1em 2em; width: 35em; max-width: 90%; text-align: left; hyphens: auto; box-sizing: border-box; min-height: 100vh; display: flex; flex-direction: column; }
         html { overflow-x: hidden; }
+
+        /* full-width strip above the text column; the negative top margin cancels the body padding.
+           The height grows with the width so the -3deg tilt (tan 3deg = 0.0524, hence 5.24vw) fits. */
+        #ink { display: block; width: 100vw; height: calc(110px + 5.24vw); margin: -1.3125em calc(50% - 50vw) .5em; }
         #page { display: flex; flex-direction: column; flex: 1; transform: rotate(-3deg); transform-origin: 50% 40%; }
         #logo { font-size: 4em; background: transparent url(/avatar.svg) no-repeat 0 0; background-size: 128px 128px; height: 128px; padding-left: 140px; line-height: 128px; transform: rotate(6deg); transform-origin: 64px 50%; cursor: help; }
         p, ul { margin: 0.6em 0; }
@@ -78,6 +84,8 @@
     <symbol id="i-auto" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 0 8 1zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16"/></symbol>
     <symbol id="i-check" viewBox="0 0 16 16"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0"/></symbol>
 </defs></svg>
+
+<canvas id="ink" aria-hidden="true"></canvas>
 
 <div class="theme-switch">
     <button class="theme-toggle" id="bd-theme" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Toggle theme (auto)">
@@ -170,6 +178,251 @@ This site runs on <a href="https://github.com/lidel/lidel.github.com">recycled e
     document.addEventListener('click', close);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
     mq.addEventListener('change', function () { if (selected() === 'auto') apply('auto'); });
+})();
+</script>
+
+<!--
+  The coffee stains at the top are drawn by the two scripts below.
+  The first is a fragment shader: a small program the GPU runs for every
+  pixel, every frame, and it returns that pixel's colour. The second is the
+  JavaScript that gives it a canvas and keeps it running.
+-->
+<script id="ink-frag" type="x-shader/x-fragment">
+/* Time grows without bound and needs 32-bit floats; 16-bit ones make the
+   motion jerky after 15 minutes. The fallback keeps old phones without
+   highp support compiling. */
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform vec2  u_res;    /* canvas size in css pixels                         */
+uniform float u_dpr;    /* device pixels per css pixel                       */
+uniform float u_time;   /* seconds since load                                */
+uniform float u_seed;   /* random per page load, so no two visits start alike */
+uniform float u_soak;   /* gain on the stain field, rising as the stains soak in */
+uniform vec3  u_paper;  /* page background                                   */
+uniform vec3  u_wash;   /* stain interior                                    */
+uniform vec3  u_ring;   /* dried stain edge                                  */
+
+/* A random-looking number for any coordinate. The constants are arbitrary;
+   they only have to make nearby inputs give unrelated outputs. The seed
+   shifts every input, so all randomness below changes with it. */
+float hash(vec2 p) {
+    return fract(sin(dot(p + u_seed, vec2(41.3, 289.1))) * 18761.7);
+}
+vec2 hash2(vec2 p) {
+    return vec2(hash(p), hash(p + 17.3));
+}
+
+/* Value noise: random values on a grid, blended smoothly between them.
+   The result is a soft, cloudy field from -1 to 1 with no seams. */
+float noise(vec2 p) {
+    vec2 cell = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);                   /* ease in and out */
+    float a = hash(cell);
+    float b = hash(cell + vec2(1.0, 0.0));
+    float c = hash(cell + vec2(0.0, 1.0));
+    float d = hash(cell + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y) * 2.0 - 1.0;
+}
+
+/* The stain field. Space is cut into unit cells and each cell owns one
+   blob whose centre wanders in a slow circle. Each blob adds a smooth bump
+   to the field, so two blobs that come close merge into one shape. Shapes
+   appear where the summed bumps cross a threshold. The coordinate is first
+   bent with slow noise; without that the blobs would sit on a visible grid
+   and slide in straight lines. */
+float field(vec2 p, float t) {
+    p += 0.4 * vec2(noise(p * 0.5 + t * 0.05), noise(p * 0.3 - t * 0.03 + 50.0));
+    vec2 cell = floor(p);
+    vec2 f = fract(p);
+    float sum = 0.0;
+    for (int y = -1; y <= 1; y++) {
+        for (int x = -1; x <= 1; x++) {
+            vec2 offset = vec2(float(x), float(y));
+            vec2 centre = 0.5 + 0.38 * sin(t * 0.35 + 6.2832 * hash2(cell + offset));
+            vec2 d = offset + centre - f;
+            float bump = max(0.0, 1.0 - dot(d, d));
+            sum += bump * bump * bump;               /* soft, round falloff */
+        }
+    }
+    return sum;
+}
+
+/* Where the coffee ends, in css pixels from the top of the strip. Sloped
+   like the -3deg page tilt (tan 3deg = 0.0524), plus two slow waves. The
+   lowest point, at the left edge, keeps room below it for the waves and
+   the wet overhang, so the stains never reach the bottom of the strip. */
+float waterline(vec2 px) {
+    float depth = (u_res.y - 64.0) - 0.0524 * px.x;
+    depth += 22.0 * noise(vec2(px.x * 0.008, u_time * 0.08));
+    depth +=  9.0 * noise(vec2(px.x * 0.020, u_time * 0.04 + 50.0));
+    return depth;
+}
+
+/* Paints one layer of stains over a colour. A coffee stain is a wash with
+   a darker ring where it dried: the wash is everything above the
+   threshold, the ring a narrow band around it. Where the washes of two
+   layers overlap the tone gets deeper. */
+vec3 layer(vec3 colour, float v, float threshold, float washAlpha, float ringAlpha) {
+    float wash = smoothstep(threshold, threshold + 0.15, v);
+    float ring = smoothstep(threshold - 0.02, threshold + 0.06, v)
+               * (1.0 - smoothstep(threshold + 0.06, threshold + 0.16, v));
+    colour = mix(colour, u_wash, wash * washAlpha);
+    return   mix(colour, u_ring, ring * ringAlpha);
+}
+
+void main() {
+    /* css pixels, so the picture is the same size on any screen density */
+    vec2 px = gl_FragCoord.xy / u_dpr;
+
+    /* height above the waterline: positive in the coffee, negative on clean paper */
+    float above = px.y - (u_res.y - waterline(px));
+
+    /* blobs bunch up against the waterline (pool) and fade out a little
+       below it (taper); that is what makes the edge look wet. A second
+       taper at the bottom of the strip makes sure nothing ends in a hard cut. */
+    float pool  = smoothstep(40.0, 0.0, above) * 0.25;
+    float taper = smoothstep(-30.0, 0.0, above) * smoothstep(0.0, 12.0, px.y);
+
+    /* fine noise roughens the stain edges into paper fibres */
+    float fibre = 0.05 * noise(px * 0.18) + 0.03 * noise(px * 0.45 + 7.0);
+
+    /* two layers of blobs, different size and speed, for depth */
+    vec2 p = px * 0.011;
+    float back  = field(p * 0.7 + vec2(u_time * 0.02,  u_time * 0.015), u_time * 0.6);
+    float front = field(p       + vec2(u_time * 0.06, -u_time * 0.020) + 100.0, u_time);
+    float vBack  = ((back  + pool) * taper + fibre) * u_soak;
+    float vFront = ((front + pool) * taper + fibre) * u_soak;
+
+    vec3 colour = layer(u_paper, vBack,  0.80, 0.55, 0.75);
+    colour      = layer(colour,  vFront, 0.85, 0.45, 0.70);
+    gl_FragColor = vec4(colour, 1.0);
+}
+</script>
+
+<script>
+(function () {
+    var FRAME_MS = 33;               /* about 30fps, enough for slow coffee */
+    var SOAK_START_MS = 1000;        /* clean paper for the first second */
+    var SOAK_MS = 20000;             /* then the stains take this long to soak in */
+    var MAX_DPR = 1.5;               /* render at most 1.5 device pixels per css pixel; the edges are rough anyway */
+
+    var canvas = document.getElementById('ink');
+    var gl = canvas.getContext('webgl', { antialias: false, alpha: false, depth: false, stencil: false });
+    if (!gl) return;                 /* no WebGL: the strip stays blank paper */
+
+    /* One rectangle that covers the canvas. The vertex shader does nothing
+       interesting; all the drawing is in the fragment shader above. */
+    var vertexSource = 'attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }';
+    var fragmentSource = document.getElementById('ink-frag').textContent;
+
+    function compile(type, source) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            throw new Error(gl.getShaderInfoLog(shader));
+        }
+        return shader;
+    }
+
+    var program = gl.createProgram();
+    gl.attachShader(program, compile(gl.VERTEX_SHADER, vertexSource));
+    gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fragmentSource));
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    var position = gl.getAttribLocation(program, 'p');
+    gl.enableVertexAttribArray(position);
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+    var uniforms = {};
+    ['u_res', 'u_dpr', 'u_time', 'u_seed', 'u_soak', 'u_paper', 'u_wash', 'u_ring'].forEach(function (name) {
+        uniforms[name] = gl.getUniformLocation(program, name);
+    });
+    gl.uniform1f(uniforms.u_seed, Math.random() * 100);
+
+    /* Colours come from the stylesheet, so the strip follows the theme
+       like the rest of the page. */
+    function rgb(variable) {
+        var hex = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+        return [1, 3, 5].map(function (i) { return parseInt(hex.substr(i, 2), 16) / 255; });
+    }
+    function colours() {
+        gl.uniform3fv(uniforms.u_paper, rgb('--bg'));
+        gl.uniform3fv(uniforms.u_wash, rgb('--stain-wash'));
+        gl.uniform3fv(uniforms.u_ring, rgb('--stain-ring'));
+    }
+
+    function resize() {
+        var dpr = Math.max(1, Math.min(MAX_DPR, devicePixelRatio || 1));
+        canvas.width = canvas.clientWidth * dpr;
+        canvas.height = canvas.clientHeight * dpr;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.uniform2f(uniforms.u_res, canvas.clientWidth, canvas.clientHeight);
+        gl.uniform1f(uniforms.u_dpr, canvas.width / canvas.clientWidth);
+    }
+
+    /* 0 until the soak starts, 1 once it is done. Quick at first, then
+       slowing down, like a spill soaking in. */
+    function spread(now) {
+        var t = Math.min(1, Math.max(0, (now - started - SOAK_START_MS) / SOAK_MS));
+        return 1 - (1 - t) * (1 - t);
+    }
+
+    function draw(now) {
+        if (needsResize) {
+            resize();
+            needsResize = false;
+        }
+        gl.uniform1f(uniforms.u_time, (now - started) / 1000);
+        /* the field starts scaled down so nothing crosses the drawing threshold, then grows to full */
+        gl.uniform1f(uniforms.u_soak, 0.3 + 0.7 * spread(now));
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    function loop(now) {
+        requestAnimationFrame(loop);
+        if (!tabVisible || !onScreen) return;        /* nobody is looking */
+        if (now - lastFrame < FRAME_MS) return;      /* frame rate cap */
+        lastFrame = now;
+        draw(now);
+    }
+
+    var tabVisible = true;
+    var onScreen = true;
+    var needsResize = true;
+    var lastFrame = 0;
+    var started = performance.now();
+    var html = document.documentElement;
+    var themeChange = { attributes: true, attributeFilter: ['data-theme'] };
+
+    /* Reduced motion: one still frame with the stains already in, redrawn
+       only when the strip changes size or the theme changes. */
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        var still = function () {
+            needsResize = true;
+            colours();
+            draw(started + SOAK_START_MS + SOAK_MS);
+        };
+        still();
+        addEventListener('resize', still);
+        new MutationObserver(still).observe(html, themeChange);
+        return;
+    }
+
+    colours();
+    new MutationObserver(colours).observe(html, themeChange);
+    addEventListener('resize', function () { needsResize = true; });
+    document.addEventListener('visibilitychange', function () { tabVisible = !document.hidden; });
+    new IntersectionObserver(function (entries) { onScreen = entries[0].isIntersecting; }).observe(canvas);
+    requestAnimationFrame(loop);
 })();
 </script>
 
