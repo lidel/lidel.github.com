@@ -45,13 +45,13 @@
         p, ul { margin: 0.6em 0; }
         #elsewhere-section { transform: rotate(6deg); transform-origin: 50% 50%; margin: 1.5em 0; }
 
-        /* a scrap stuck on the page */
-        #office-hours { display: none; align-self: flex-start; width: fit-content; max-width: min(26em, 100%); margin: 3em 0 0; padding: .7em 1em; border: 1px solid var(--note-border); background: var(--note-bg); box-shadow: .15em .2em .5em var(--note-shadow); transform: rotate(6deg); transform-origin: 50% 50%; }
-        #office-hours.open { display: block; }
-        #office-hours p { margin: 0; hyphens: none; }
-        #office-hours p + p { margin-top: .55em; }
-        #office-hours p:last-child { font-style: italic; font-size: .9em; }
-        #office-hours a { white-space: nowrap; font-weight: bold; }
+        /* a scrap stuck on the page; the script opens whichever one applies today */
+        .note { display: none; align-self: flex-start; width: fit-content; max-width: min(26em, 100%); margin: 3em 0 0; padding: .7em 1em; border: 1px solid var(--note-border); background: var(--note-bg); box-shadow: .15em .2em .5em var(--note-shadow); transform: rotate(6deg); transform-origin: 50% 50%; }
+        .note.open { display: block; }
+        .note p { margin: 0; hyphens: none; }
+        .note p + p { margin-top: .55em; }
+        .note p:last-child { font-style: italic; font-size: .9em; }
+        .note a { white-space: nowrap; font-weight: bold; }
         ul#elsewhere { list-style-type: none; padding: 0; }
         #elsewhere li { display: inline; margin-right: 0.5em; font-size: 0.8em; }
         h1 { font-size: 1.5em; font-weight: normal; font-style: italic; margin-top: 1.8em; margin-bottom: 0.2em; }
@@ -115,7 +115,7 @@
 
 <p>You've found <strong class="p-nickname">lidel</strong>! (<span class="p-name">Marcin Rataj</span>)</p>
 
-<div id="office-hours">
+<div id="office-hours" class="note">
 <p><strong>Office hours</strong> until Sep&nbsp;30,&nbsp;2026, my last day on IPFS.</p>
 <p>If you maintain or depend on something I&nbsp;worked on, and want to discuss
 maintenance handoff, or the reasoning that never made it into a commit message,
@@ -123,14 +123,21 @@ maintenance handoff, or the reasoning that never made it into a commit message,
 <p>After that I go quiet.</p>
 </div>
 
+<div id="office-hours-over" class="note">
+<p><strong>My work on IPFS ended</strong> on Sep&nbsp;30,&nbsp;2026.</p>
+<p>I held three months of office hours through Q3 for handoff questions.
+Those are over, and I no longer respond to IPFS-related inquiries.</p>
+<p>I'm on an indefinite break.</p>
+</div>
+
 <script>
 (function () {
-    /* The stylesheet hides the note; it is only shown while the hours are still
-       open, which ends at midnight on Sep 30 in Warsaw, where the calendar slots
-       live. Month index 8 is September. */
-    if (Date.now() < Date.UTC(2026, 8, 30, 22, 0, 0)) {
-        document.getElementById('office-hours').classList.add('open');
-    }
+    /* The stylesheet hides both notes and this opens the one that applies: the
+       invitation while the hours are still open, the notice afterwards. They
+       close at midnight on Sep 30 in Warsaw, where the calendar slots lived.
+       Month index 8 is September. */
+    var open = Date.now() < Date.UTC(2026, 8, 30, 22, 0, 0);
+    document.getElementById(open ? 'office-hours' : 'office-hours-over').classList.add('open');
 })();
 </script>
 
