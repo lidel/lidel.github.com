@@ -22,6 +22,7 @@
             color-scheme: light;
             --bg: #fffff8; --fg: #111; --link-border: #555; --link-hover: #333; --accent: #556688;
             --stain-wash: #8c8676; --stain-ring: #232019;
+            --note-bg: #f6f2e2; --note-border: #d8d2bd; --note-shadow: rgba(0,0,0,.10);
             --ctl-fg: #333; --ctl-bg: #fffff8; --ctl-border: rgba(0,0,0,.18); --ctl-hover: #f0efe4; --ctl-shadow: rgba(0,0,0,.15);
             --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='5' viewBox='0 0 16 5'%3E%3Cpath d='M0 2.5 Q4 1 8 2.5 T16 2.5' fill='none' stroke='%23a15c2e' stroke-width='1.4'/%3E%3C/svg%3E");
         }
@@ -29,6 +30,7 @@
             color-scheme: dark;
             --bg: #18181a; --fg: #d3ccbc; --link-border: #79756b; --link-hover: #f1e9d7; --accent: #9bafc9;
             --stain-wash: #4d493e; --stain-ring: #8c8676;
+            --note-bg: #202024; --note-border: #35343a; --note-shadow: rgba(0,0,0,.45);
             --ctl-fg: #d3ccbc; --ctl-bg: #212126; --ctl-border: rgba(255,255,255,.16); --ctl-hover: #2c2c32; --ctl-shadow: rgba(0,0,0,.5);
             --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='5' viewBox='0 0 16 5'%3E%3Cpath d='M0 2.5 Q4 1 8 2.5 T16 2.5' fill='none' stroke='%23c98a5a' stroke-width='1.4'/%3E%3C/svg%3E");
         }
@@ -42,6 +44,14 @@
         #logo { font-size: 4em; background: transparent url(/avatar.svg) no-repeat 0 0; background-size: 128px 128px; height: 128px; padding-left: 140px; line-height: 128px; transform: rotate(6deg); transform-origin: 64px 50%; cursor: help; }
         p, ul { margin: 0.6em 0; }
         #elsewhere-section { transform: rotate(6deg); transform-origin: 50% 50%; margin: 1.5em 0; }
+
+        /* a scrap stuck on the page */
+        #office-hours { display: none; align-self: flex-start; width: fit-content; max-width: min(26em, 100%); margin: 3em 0 0; padding: .7em 1em; border: 1px solid var(--note-border); background: var(--note-bg); box-shadow: .15em .2em .5em var(--note-shadow); transform: rotate(6deg); transform-origin: 50% 50%; }
+        #office-hours.open { display: block; }
+        #office-hours p { margin: 0; hyphens: none; }
+        #office-hours p + p { margin-top: .55em; }
+        #office-hours p:last-child { font-style: italic; font-size: .9em; }
+        #office-hours a { white-space: nowrap; font-weight: bold; }
         ul#elsewhere { list-style-type: none; padding: 0; }
         #elsewhere li { display: inline; margin-right: 0.5em; font-size: 0.8em; }
         h1 { font-size: 1.5em; font-weight: normal; font-style: italic; margin-top: 1.8em; margin-bottom: 0.2em; }
@@ -105,7 +115,24 @@
 
 <p>You've found <strong class="p-nickname">lidel</strong>! (<span class="p-name">Marcin Rataj</span>)</p>
 
+<div id="office-hours">
+<p><strong>Office hours</strong> until Sep&nbsp;30,&nbsp;2026, my last day on IPFS.</p>
+<p>If you maintain or depend on something I&nbsp;worked on, and want to discuss
+maintenance handoff, or the reasoning that never made it into a commit message,
+<a href="https://ipfs.fyi/meet-lidel" title="while the coffee lasts">book a slot</a>.</p>
+<p>After that I go quiet.</p>
+</div>
 
+<script>
+(function () {
+    /* The stylesheet hides the note; it is only shown while the hours are still
+       open, which ends at midnight on Sep 30 in Warsaw, where the calendar slots
+       live. Month index 8 is September. */
+    if (Date.now() < Date.UTC(2026, 8, 30, 22, 0, 0)) {
+        document.getElementById('office-hours').classList.add('open');
+    }
+})();
+</script>
 
 <h1>Contact</h1>
 <p>Asynchronous regrets: email hidden in my <a href="https://github.com/lidel" title="try: git log --author=lidel --format='%ae'">git commits</a>.</p>
