@@ -45,13 +45,11 @@
         p, ul { margin: 0.6em 0; }
         #elsewhere-section { transform: rotate(6deg); transform-origin: 50% 50%; margin: 1.5em 0; }
 
-        /* a scrap stuck on the page; the script opens whichever one applies today */
-        .note { display: none; align-self: flex-start; width: fit-content; max-width: min(26em, 100%); margin: 3em 0 0; padding: .7em 1em; border: 1px solid var(--note-border); background: var(--note-bg); box-shadow: .15em .2em .5em var(--note-shadow); transform: rotate(6deg); transform-origin: 50% 50%; }
-        .note.open { display: block; }
+        /* a scrap stuck on the page */
+        .note { align-self: flex-start; width: fit-content; max-width: min(26em, 100%); margin: 3em 0 0; padding: .7em 1em; border: 1px solid var(--note-border); background: var(--note-bg); box-shadow: .15em .2em .5em var(--note-shadow); transform: rotate(6deg); transform-origin: 50% 50%; }
         .note p { margin: 0; hyphens: none; }
         .note p + p { margin-top: .55em; }
         .note p:last-child { font-style: italic; font-size: .9em; }
-        .note a { white-space: nowrap; font-weight: bold; }
         ul#elsewhere { list-style-type: none; padding: 0; }
         #elsewhere li { display: inline; margin-right: 0.5em; font-size: 0.8em; }
         h1 { font-size: 1.5em; font-weight: normal; font-style: italic; margin-top: 1.8em; margin-bottom: 0.2em; }
@@ -115,39 +113,18 @@
 
 <p>You've found <strong class="p-nickname">lidel</strong>! (<span class="p-name">Marcin Rataj</span>)</p>
 
-<div id="office-hours" class="note">
-<p><strong>Office hours</strong> until Sep&nbsp;30,&nbsp;2026, my last day on IPFS.</p>
-<p>If you maintain or depend on something I&nbsp;worked on, and want to discuss
-maintenance handoff, or the reasoning that never made it into a commit message,
-<a href="https://ipfs.fyi/meet-lidel" title="while the coffee lasts">book a slot</a>.</p>
-<p>After that I go quiet.</p>
-</div>
-
-<div id="office-hours-over" class="note">
+<div class="note">
 <p><strong>My work on IPFS ended</strong> on Sep&nbsp;30,&nbsp;2026.</p>
-<p>I held three months of office hours through Q3 for handoff questions.
-Those are over, and I no longer respond to IPFS-related inquiries.</p>
 <p>I'm on an indefinite break.</p>
 </div>
 
-<script>
-(function () {
-    /* The stylesheet hides both notes and this opens the one that applies: the
-       invitation while the hours are still open, the notice afterwards. They
-       close at midnight on Sep 30 in Warsaw, where the calendar slots lived.
-       Month index 8 is September. */
-    var open = Date.now() < Date.UTC(2026, 8, 30, 22, 0, 0);
-    document.getElementById(open ? 'office-hours' : 'office-hours-over').classList.add('open');
-})();
-</script>
-
 <h1>Contact</h1>
-<p>Asynchronous regrets: email hidden in my <a href="https://github.com/lidel" title="try: git log --author=lidel --format='%ae'">git commits</a>.</p>
+<p>Asynchronous: email hidden in my <a href="https://github.com/lidel" title="try: git log --author=lidel --format='%ae'">git commits</a>.</p>
 
-<p>Synchronous regrets: <a href="https://matrix.to/#/@lidel:matrix.org" title="chat with me on Matrix">@lidel:matrix.org</a></p>
+<p>Synchronous: <a href="https://matrix.to/#/@lidel:matrix.org" title="chat with me on Matrix">@lidel:matrix.org</a></p>
 
 <p>
-Encrypted regrets: PGP <a href="/.well-known/openpgpkey/hu/pux6ahz7y3h18tcqxn4gzhq8qtgkjujx" type="application/pgp-keys" download="0x222B6784D5A79E42.pgp" rel="pgpkey" class="u-key">0x222B6784D5A79E42</a><br>
+Encrypted: PGP <a href="/.well-known/openpgpkey/hu/pux6ahz7y3h18tcqxn4gzhq8qtgkjujx" type="application/pgp-keys" download="0x222B6784D5A79E42.pgp" rel="pgpkey" class="u-key">0x222B6784D5A79E42</a><br>
 <code>9971 97D7 8B2D 5ED7 43FC  B65D 222B 6784 D5A7 9E42</code>
 </p>
 
