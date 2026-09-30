@@ -56,8 +56,10 @@
         #elsewhere li { display: inline; margin-right: 0.5em; font-size: 0.8em; }
         h1 { font-size: 1.5em; font-weight: normal; font-style: italic; margin-top: 1.8em; margin-bottom: 0.2em; }
         h1 + p, h1 + ul { margin-top: 0; }
-        a { color: var(--fg); text-decoration:none; border-bottom: 1px dotted var(--link-border); padding-bottom: 3px; }
-        a:hover { color: var(--link-hover); border-bottom-color: transparent; background: var(--squiggle) repeat-x 0 100% / 16px 5px; }
+        /* border, not text-decoration: dotted underlines smear in Firefox */
+        a { color: var(--fg); text-decoration: none; border-bottom: 1px dotted var(--link-border); padding-bottom: 1px; }
+        /* the shadow masks the squiggle around descenders */
+        a:hover { color: var(--link-hover); border-bottom-color: transparent; padding-bottom: 3px; background: var(--squiggle) repeat-x 0 100% / 16px 5px; text-shadow: .06em 0 var(--bg), -.06em 0 var(--bg), 0 .06em var(--bg); }
         footer { text-align: right; font-size: 0.8em; margin-top: auto; }
 
         #q { display: inline-block; }
