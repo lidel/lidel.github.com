@@ -22,7 +22,6 @@
             color-scheme: light;
             --bg: #fffff8; --fg: #111; --link-border: #555; --link-hover: #333; --accent: #556688;
             --stain-wash: #8c8676; --stain-ring: #232019;
-            --note-bg: #f6f2e2; --note-border: #d8d2bd; --note-shadow: rgba(0,0,0,.10);
             --ctl-fg: #333; --ctl-bg: #fffff8; --ctl-border: rgba(0,0,0,.18); --ctl-hover: #f0efe4; --ctl-shadow: rgba(0,0,0,.15);
             --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='5' viewBox='0 0 16 5'%3E%3Cpath d='M0 2.5 Q4 1 8 2.5 T16 2.5' fill='none' stroke='%23a15c2e' stroke-width='1.4'/%3E%3C/svg%3E");
         }
@@ -30,7 +29,6 @@
             color-scheme: dark;
             --bg: #18181a; --fg: #d3ccbc; --link-border: #79756b; --link-hover: #f1e9d7; --accent: #9bafc9;
             --stain-wash: #4d493e; --stain-ring: #8c8676;
-            --note-bg: #202024; --note-border: #35343a; --note-shadow: rgba(0,0,0,.45);
             --ctl-fg: #d3ccbc; --ctl-bg: #212126; --ctl-border: rgba(255,255,255,.16); --ctl-hover: #2c2c32; --ctl-shadow: rgba(0,0,0,.5);
             --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='5' viewBox='0 0 16 5'%3E%3Cpath d='M0 2.5 Q4 1 8 2.5 T16 2.5' fill='none' stroke='%23c98a5a' stroke-width='1.4'/%3E%3C/svg%3E");
         }
@@ -45,8 +43,12 @@
         p, ul { margin: 0.6em 0; }
         #elsewhere-section { transform: rotate(6deg); transform-origin: 50% 50%; margin: 1.5em 0; }
 
-        /* a scrap stuck on the page */
-        .note { align-self: flex-start; width: fit-content; max-width: min(26em, 100%); margin: 3em 0 0; padding: .7em 1em; border: 1px solid var(--note-border); background: var(--note-bg); box-shadow: .15em .2em .5em var(--note-shadow); transform: rotate(6deg); transform-origin: 50% 50%; }
+        /* a scrap stuck on the page, and the coffee got to it too. The shader at the bottom
+           of the page paints the stain on a canvas behind the text, which sticks out a bit
+           around the note for the ragged edges and a lot more below it for the drips. The
+           shader needs the same two sizes. */
+        .note { align-self: flex-start; width: fit-content; max-width: min(26em, 100%); margin: 3em 0 2em; padding: .7em 1em; transform: rotate(6deg); transform-origin: 50% 50%; }
+        #note-ink { --room: 16px; --drip-room: 56px; position: absolute; z-index: -1; left: calc(-1 * var(--room)); top: calc(-1 * var(--room)); width: calc(100% + 2 * var(--room)); height: calc(100% + var(--room) + var(--drip-room)); }
         .note p { margin: 0; hyphens: none; }
         .note p + p { margin-top: .55em; }
         .note p:last-child { font-style: italic; font-size: .9em; }
@@ -114,6 +116,7 @@
 <p>You've found <strong class="p-nickname">lidel</strong>! (<span class="p-name">Marcin Rataj</span>)</p>
 
 <div class="note">
+<canvas id="note-ink" aria-hidden="true"></canvas>
 <p><strong>My work on IPFS ended</strong> on Sep&nbsp;30,&nbsp;2026.</p>
 <p>I'm on an indefinite break.</p>
 </div>
@@ -193,10 +196,11 @@ This site runs on <a href="https://github.com/lidel/lidel.github.com">recycled e
 </script>
 
 <!--
-  The coffee stains at the top are drawn by the two scripts below.
-  The first is a fragment shader: a small program the GPU runs for every
-  pixel, every frame, and it returns that pixel's colour. The second is the
-  JavaScript that gives it a canvas and keeps it running.
+  The coffee stains at the top and under the note are drawn by the two
+  scripts below. The first is a fragment shader: a small program the GPU
+  runs for every pixel, every frame, and it returns that pixel's colour. The
+  second is the JavaScript that gives it a canvas at the top and one under
+  the note, and keeps them running.
 -->
 <script id="ink-frag" type="x-shader/x-fragment">
 /* Time grows without bound and needs 32-bit floats; 16-bit ones make the
@@ -213,7 +217,6 @@ uniform float u_dpr;    /* device pixels per css pixel                       */
 uniform float u_time;   /* seconds since load                                */
 uniform float u_seed;   /* random per page load, so no two visits start alike */
 uniform float u_soak;   /* gain on the stain field, rising as the stains soak in */
-uniform vec3  u_paper;  /* page background                                   */
 uniform vec3  u_wash;   /* stain interior                                    */
 uniform vec3  u_ring;   /* dried stain edge                                  */
 
@@ -277,19 +280,95 @@ float waterline(vec2 px) {
 /* Paints one layer of stains over a colour. A coffee stain is a wash with
    a darker ring where it dried: the wash is everything above the
    threshold, the ring a narrow band around it. Where the washes of two
-   layers overlap the tone gets deeper. */
-vec3 layer(vec3 colour, float v, float threshold, float washAlpha, float ringAlpha) {
+   layers overlap the tone gets deeper. Wherever there is no stain the
+   canvas stays see-through, so the page shows. */
+vec4 layer(vec4 colour, float v, float threshold, float washAlpha, float ringAlpha) {
     float wash = smoothstep(threshold, threshold + 0.15, v);
     float ring = smoothstep(threshold - 0.02, threshold + 0.06, v)
                * (1.0 - smoothstep(threshold + 0.06, threshold + 0.16, v));
-    colour = mix(colour, u_wash, wash * washAlpha);
-    return   mix(colour, u_ring, ring * ringAlpha);
+    colour = mix(colour, vec4(u_wash, 1.0), wash * washAlpha);
+    return   mix(colour, vec4(u_ring, 1.0), ring * ringAlpha);
+}
+
+/* Joins two shapes with a soft, rounded seam k pixels wide, the way coffee
+   fills the corner where a drip leaves the edge. */
+float smin(float a, float b, float k) {
+    float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+    return mix(b, a, h) - k * h * (1.0 - h);
+}
+
+/* The note's canvas is a bit bigger than the note: it sticks out by ROOM
+   on every side, and by DRIP_ROOM at the bottom, where the drips hang. The
+   stylesheet sets the same sizes. */
+const float ROOM = 16.0;
+const float DRIP_ROOM = 56.0;
+
+/* How far the note has melted, from 0 (still a neat rectangle) to 1
+   (done). It keeps time with the soak but takes a while to get going. */
+float melt() {
+    float m = (u_soak - 0.3) / 0.7;
+    return m * m;
+}
+
+/* One drip, hanging from the note's bottom edge at x (0 is the left end,
+   1 the right): a trail that thins as it runs down and ends in a bead. q
+   comes in already straightened for the tilt, so the drip falls plumb.
+   Its length changes a little from visit to visit. As the note melts, the
+   drip swells out of the edge first, then runs. */
+float drip(vec2 q, float x, float len, float r) {
+    float m = melt();
+    float cx = ROOM + x * (u_res.x - 2.0 * ROOM);
+    len *= (0.75 + 0.5 * hash(vec2(x, 3.0))) * m;
+    r *= min(1.0, 2.0 * m);
+    float y = clamp(q.y, DRIP_ROOM - len, DRIP_ROOM + r);
+    float trail = length(q - vec2(cx, y)) - mix(r, 0.7 * r, (DRIP_ROOM - y) / (len + 1.0));
+    float bead = length(q - vec2(cx, DRIP_ROOM - len + 0.3 * r)) - 1.05 * r;
+    return smin(trail, bead, 1.5 * r + 0.01) + 8.0 * max(0.0, 1.0 - 4.0 * m);
 }
 
 void main() {
     /* css pixels, so the picture is the same size on any screen density */
     vec2 px = gl_FragCoord.xy / u_dpr;
 
+    /* fine noise roughens the stain edges into paper fibres */
+    float fibre = 0.05 * noise(px * 0.18) + 0.03 * noise(px * 0.45 + 7.0);
+
+    /* two layers of blobs, different size and speed, for depth */
+    vec2 p = px * 0.011;
+    float back  = field(p * 0.7 + vec2(u_time * 0.02,  u_time * 0.015), u_time * 0.6);
+    float front = field(p       + vec2(u_time * 0.06, -u_time * 0.020) + 100.0, u_time);
+
+#ifdef NOTE
+    /* The stain under the note. It starts out as a neat rectangle, then
+       melts: slow waves bend its edges, so it looks painted rather than ruled. */
+    float m = melt();
+    vec2 w = px + m * (3.5 * vec2(noise(px * 0.012 + u_time * 0.05), noise(px * 0.012 - u_time * 0.05 + 30.0))
+                     + 1.0 * vec2(noise(px * 0.04 + 3.0), noise(px * 0.04 + 60.0)));
+    float along = (px.x - ROOM) / (u_res.x - 2.0 * ROOM);   /* 0 at the note's left end, 1 at its right */
+
+    /* the wet bottom edge sags, most on the right, which hangs lower. Coffee
+       pools along it, up to a tide line that the blobs push about. */
+    float bottom = DRIP_ROOM - m * (1.0 + 3.0 * along + 1.5 * noise(vec2(px.x * 0.05, u_time * 0.08)));
+    float tide = bottom - 3.0 + m * (10.0 + 12.0 * along * along + 8.0 * (front - 0.5));
+    vec2 d = abs(w - vec2(0.5 * u_res.x, 0.5 * (u_res.y - ROOM + bottom)))
+           - vec2(0.5 * u_res.x - ROOM, 0.5 * (u_res.y - ROOM - bottom)) + 6.0 * m;
+    float soaked = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - 6.0 * m;   /* the box, its corners rounding off as it melts */
+    float wet = max(soaked, w.y - tide);
+
+    /* The note hangs 3deg off level (turned 6deg, on a page turned -3deg),
+       but drips fall straight down the screen, so they drift tan 3deg =
+       0.0524 of a pixel sideways for every pixel they fall. The longest ones
+       are on the right, where the coffee runs to. */
+    vec2 q = vec2(px.x - max(DRIP_ROOM - px.y, 0.0) * 0.0524, px.y);
+    float drips = min(drip(q, 0.14, 5.0, 2.8), drip(q, 0.40, 14.0, 3.2));
+    drips = min(drips, min(drip(q, 0.66, 9.0, 3.0), drip(q, 0.84, 22.0, 3.6)));
+    drips = min(drips, drip(q, 0.985, 34.0, 4.2));
+
+    /* crisp edges in places, softer ones where the fibres take over */
+    float sharp = mix(0.055, 0.11, 0.5 + 0.5 * noise(px * 0.009 + 20.0));
+    float vBack  = 0.80 - sharp * smin(soaked, drips, 8.0) + fibre;
+    float vFront = 0.85 - sharp * smin(wet, drips, 8.0) + fibre;
+#else
     /* height above the waterline: positive in the coffee, negative on clean paper */
     float above = px.y - (u_res.y - waterline(px));
 
@@ -299,37 +378,34 @@ void main() {
     float pool  = smoothstep(40.0, 0.0, above) * 0.25;
     float taper = smoothstep(-30.0, 0.0, above) * smoothstep(0.0, 12.0, px.y);
 
-    /* fine noise roughens the stain edges into paper fibres */
-    float fibre = 0.05 * noise(px * 0.18) + 0.03 * noise(px * 0.45 + 7.0);
-
-    /* two layers of blobs, different size and speed, for depth */
-    vec2 p = px * 0.011;
-    float back  = field(p * 0.7 + vec2(u_time * 0.02,  u_time * 0.015), u_time * 0.6);
-    float front = field(p       + vec2(u_time * 0.06, -u_time * 0.020) + 100.0, u_time);
     float vBack  = ((back  + pool) * taper + fibre) * u_soak;
     float vFront = ((front + pool) * taper + fibre) * u_soak;
+#endif
 
-    vec3 colour = layer(u_paper, vBack,  0.80, 0.55, 0.75);
-    colour      = layer(colour,  vFront, 0.85, 0.45, 0.70);
-    gl_FragColor = vec4(colour, 1.0);
+    vec4 colour = layer(vec4(0.0), vBack, 0.80, 0.55, 0.75);
+    gl_FragColor = layer(colour,   vFront, 0.85, 0.45, 0.70);
+#ifdef NOTE
+    gl_FragColor *= 0.6;                            /* paler than the strip, so the text stays easy to read */
+#endif
 }
 </script>
 
 <script>
-(function () {
+['ink', 'note-ink'].forEach(function (id) {
     var FRAME_MS = 33;               /* about 30fps, enough for slow coffee */
     var SOAK_START_MS = 1000;        /* clean paper for the first second */
     var SOAK_MS = 20000;             /* then the stains take this long to soak in */
     var MAX_DPR = 1.5;               /* render at most 1.5 device pixels per css pixel; the edges are rough anyway */
 
-    var canvas = document.getElementById('ink');
-    var gl = canvas.getContext('webgl', { antialias: false, alpha: false, depth: false, stencil: false });
-    if (!gl) return;                 /* no WebGL: the strip stays blank paper */
+    var canvas = document.getElementById(id);
+    var note = id === 'note-ink';
+    var gl = canvas.getContext('webgl', { antialias: false, depth: false, stencil: false });
+    if (!gl) return;                 /* no WebGL: the page stays clean */
 
     /* One rectangle that covers the canvas. The vertex shader does nothing
        interesting; all the drawing is in the fragment shader above. */
     var vertexSource = 'attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }';
-    var fragmentSource = document.getElementById('ink-frag').textContent;
+    var fragmentSource = (note ? '#define NOTE\n' : '') + document.getElementById('ink-frag').textContent;
 
     function compile(type, source) {
         var shader = gl.createShader(type);
@@ -354,19 +430,18 @@ void main() {
     gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
 
     var uniforms = {};
-    ['u_res', 'u_dpr', 'u_time', 'u_seed', 'u_soak', 'u_paper', 'u_wash', 'u_ring'].forEach(function (name) {
+    ['u_res', 'u_dpr', 'u_time', 'u_seed', 'u_soak', 'u_wash', 'u_ring'].forEach(function (name) {
         uniforms[name] = gl.getUniformLocation(program, name);
     });
     gl.uniform1f(uniforms.u_seed, Math.random() * 100);
 
-    /* Colours come from the stylesheet, so the strip follows the theme
+    /* Colours come from the stylesheet, so the stains follow the theme
        like the rest of the page. */
     function rgb(variable) {
         var hex = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
         return [1, 3, 5].map(function (i) { return parseInt(hex.substr(i, 2), 16) / 255; });
     }
     function colours() {
-        gl.uniform3fv(uniforms.u_paper, rgb('--bg'));
         gl.uniform3fv(uniforms.u_wash, rgb('--stain-wash'));
         gl.uniform3fv(uniforms.u_ring, rgb('--stain-ring'));
     }
@@ -392,13 +467,15 @@ void main() {
             resize();
             needsResize = false;
         }
-        gl.uniform1f(uniforms.u_time, (now - started) / 1000);
+        /* the note's clock winds down with the soak, so the melt eases to a stop */
+        gl.uniform1f(uniforms.u_time, (note ? spread(now) * SOAK_MS : now - started) / 1000);
         /* the field starts scaled down so nothing crosses the drawing threshold, then grows to full */
         gl.uniform1f(uniforms.u_soak, 0.3 + 0.7 * spread(now));
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 
     function loop(now) {
+        if (note && now - started > SOAK_START_MS + SOAK_MS) return still();   /* the note is done melting */
         requestAnimationFrame(loop);
         if (!tabVisible || !onScreen) return;        /* nobody is looking */
         if (now - lastFrame < FRAME_MS) return;      /* frame rate cap */
@@ -414,19 +491,20 @@ void main() {
     var html = document.documentElement;
     var themeChange = { attributes: true, attributeFilter: ['data-theme'] };
 
-    /* Reduced motion: one still frame with the stains already in, redrawn
-       only when the strip changes size or the theme changes. */
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        var still = function () {
+    /* One still frame with the stains already in, redrawn only when the
+       canvas changes size or the theme changes. Used for reduced motion,
+       and for the note once it is done melting. */
+    function still() {
+        var redraw = function () {
             needsResize = true;
             colours();
             draw(started + SOAK_START_MS + SOAK_MS);
         };
-        still();
-        addEventListener('resize', still);
-        new MutationObserver(still).observe(html, themeChange);
-        return;
+        redraw();
+        addEventListener('resize', redraw);
+        new MutationObserver(redraw).observe(html, themeChange);
     }
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return still();
 
     colours();
     new MutationObserver(colours).observe(html, themeChange);
@@ -434,7 +512,7 @@ void main() {
     document.addEventListener('visibilitychange', function () { tabVisible = !document.hidden; });
     new IntersectionObserver(function (entries) { onScreen = entries[0].isIntersecting; }).observe(canvas);
     requestAnimationFrame(loop);
-})();
+});
 </script>
 
 </body>
